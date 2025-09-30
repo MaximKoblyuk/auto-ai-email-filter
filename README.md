@@ -1,112 +1,98 @@
-# auto-ai-email-filterHow to Automate Email Categorization with n8n and LLM
-I got tired of waiting for Gmail to figure out which emails actually matter to me. After three months of letting AI handle my personal email categorization, I can't imagine going back to manual sorting.
+## Step-by-Step Guide: Automating Email Categorization with n8n and OpenAI
 
-My system is embarrassingly simple: every email gets sorted into one of three buckets by GPT-5-nano. Archive it, read it, or answer it. That's it.
+Ready to take control of your inbox? This guide walks you through setting up a simple, powerful email automation system using n8n and an AI model from OpenAI. Let’s get started!
 
-The whole thing runs on n8n and costs me almost nothing since I'm using the cheapest OpenAI model with structured output. Sure, OpenAI now sees all my personal emails, but let's be honest—they probably know more about me from my ChatGPT conversations anyway.
+---
 
-This isn't some theoretical concept I'm pitching. I've been running this in production for three months, and it saves me hours every week.
+### 1. Set Up n8n
 
-Why I Built This Email Automation System
-I receive way too many emails. Newsletter subscriptions, service notifications, actual important messages from real humans—it all lands in the same inbox. Gmail's built-in categorization kept missing obvious patterns, and I was spending 20 minutes every morning just deciding what to read.
+- **Option A:** Self-host n8n ([Instructions](https://docs.n8n.io/hosting/installation/))
+- **Option B:** Sign up for [n8n Cloud](https://n8n.io/cloud) for a managed service  
+Either way, create an n8n account and log in.
 
-The breaking point came when I realized I was archiving 80% of my emails without reading them. If most emails don't need my attention, why am I the one deciding which ones do?
+---
 
-Prefer Video Tutorial? I've created a step-by-step video demonstration of this entire email automation workflow. Watch Email Automation with n8n and LLM Tutorial to see the complete setup process in action.
+### 2. Connect Your Gmail Account
 
-Email automation workflow with n8n and LLM demonstration
+- Add a **Gmail Trigger** node in your workflow.
+- Authenticate with your Gmail account.
+- Set the trigger to fire on new incoming emails.
 
-The Three-Category System That Actually Works
-My AI categorizes every email into exactly three options:
+---
 
-Archive - Newsletters I subscribed to but never read, automated notifications, promotional emails
-Read - Content I want to consume but don't need to respond to
-Answer - Emails that require a human response from me
-No complex folder structures. No priority levels. Just three simple actions that cover 100% of my email.
+### 3. Get Your OpenAI API Key
 
-Setting Up the n8n Workflow
-Here's the complete n8n workflow that handles everything automatically:
+- Sign up or log in at [OpenAI](https://platform.openai.com/)
+- Navigate to API keys and create a new one.
+- Copy the key—you’ll need it for the next step.
 
-n8n Email Categorization Workflow
+---
 
-The workflow triggers every time a new email arrives in my Gmail inbox. It grabs the email content, sends it to OpenAI for categorization, then applies the appropriate Gmail label and archives emails that don't need my attention.
+### 4. Build the Email Categorization Workflow
 
-Required n8n Nodes
-You'll need these nodes in your workflow:
+Add these nodes to your n8n workflow, in order:
 
-Gmail Trigger - Monitors for new emails
-OpenAI Chat Model - Categorizes the email content
-Gmail - Applies labels and archives emails
-IF conditions - Routes emails based on AI decision
-The magic happens in the OpenAI node configuration. Here's how I set it up:
+1. **Gmail Trigger**: Monitors for new emails.
+2. **OpenAI Chat Model**: Sends email text for categorization.
+   - Paste your API key into the credentials.
+   - Use a prompt like:
 
-OpenAI LLM Node Configuration in n8n
+     ```
+     Categorize this email as one of: Archive, Read, or Answer. Return ONLY the category in structured JSON.
+     ```
 
-The LLM Prompt That Makes It Work
-The prompt is the heart of this system. After testing dozens of variations, this one gives me the most consistent results:
+3. **IF Node(s)**: Evaluates the AI's response.
+   - Route emails based on the returned category.
 
-Note: This is just the LLM prompt for email categorization. If you want the complete n8n workflow automation (including all nodes and connections), scroll down to the "Complete n8n Workflow JSON" section below.
+4. **Gmail Node**: Applies labels, archives, or marks emails as needed.
 
-I use structured output to ensure the AI always returns a valid category. No parsing errors, no edge cases where the AI gets creative with its response format.
+---
 
-Three Months of Real-World Results
-Since implementing this system:
+### 5. Customize & Test the Workflow
 
-Time saved: About 15-20 minutes per day on email triage
-Accuracy: The AI correctly categorizes roughly 95% of emails
-Cost: Under $3 per month using GPT-5-nano
-False positives: Maybe 2-3 emails per week get miscategorized
-The 5% error rate is totally manageable. When the AI gets it wrong, I just move the email to the right category and move on. Still faster than manually sorting everything.
+- Adjust the AI prompt to reflect your specific needs or add more categories.
+- Set up label IDs for processed emails (replace `__REPLACE_WITH_YOUR_PROCESSED_LABEL_ID__` in the workflow).
+- Run some test emails through the workflow to confirm everything works.
 
-Security Considerations (And Why I'm Okay With Them)
-Yes, OpenAI now processes all my personal emails. This isn't ideal from a privacy standpoint, but I made peace with it for a few reasons:
+---
 
-First, I already use a password manager with 2FA codes (not email-based), so email compromise isn't catastrophic. Second, OpenAI already knows plenty about me from regular ChatGPT usage. Third, the time savings are worth the privacy trade-off for my personal workflow.
+### 6. (Optional) Set Up Error Handling
 
-If you're handling sensitive business emails, you might want to use a local LLM instead of OpenAI's API. The n8n setup works the same way.
+- Add a fallback node to send yourself an alert if something goes wrong (e.g., email to self or webhook).
 
-Getting Started With Your Own Email Automation
-Here's how to build this system yourself:
+---
 
-Set up n8n - Either self-hosted or use n8n Cloud
-Connect Gmail - You'll need to authenticate your Gmail account
-Get OpenAI API access - Create an account and grab your API key
-Import the workflow - I'll share the JSON export if people want it
-Customize the prompt - Adjust the categories for your email patterns
-Test with a few emails - Start small before automating everything
-The whole setup takes about 30 minutes if you're familiar with n8n. Maybe an hour if you're starting from scratch.
+### 7. Import Complete Workflow (Advanced)
 
-Why This Beats Gmail's Built-in Features
-Gmail's automatic categorization is designed for everyone, which means it's optimized for no one. My system learns my specific email patterns and preferences.
+- Copy the full JSON export (see end of this README).
+- Save as `email-ai-automation-personal.json`.
+- In n8n: Go to **Workflows → Import from JSON**, select your file, and import.
+- Update your Gmail and OpenAI credentials in the workflow.
+- Test before enabling live triggers.
 
-Plus, I can modify the logic anytime. Want to add a fourth category? Change the prompt. Need different handling for emails from specific senders? Add a condition node. Gmail's rules are rigid; this system adapts to whatever I need.
+---
 
-The Bottom Line
-Three months in, this email automation system has become essential to my daily workflow. It's not perfect, but it's way better than manually sorting hundreds of emails every week.
+### 8. Video Walkthrough
 
-The setup is straightforward, the ongoing costs are minimal, and the time savings are real. If you're drowning in email like I was, this approach might be worth trying.
+Prefer learning visually? Check out the [Email Automation with n8n and LLM Video Tutorial](#) for a full demonstration.
 
-Just remember: start simple, test thoroughly, and don't automate anything you can't easily undo.
+---
 
-Complete n8n Workflow JSON
-For those ready to implement this system, here's the complete n8n workflow you can import directly:
+### 9. Tips & Best Practices
 
-Import Instructions
-Copy the JSON above
-Save it to a file with the name email-ai-automation-personal.json
-In n8n, go to Workflows → Import from JSON
-Select the file you saved and click Import
-Configure your Gmail and OpenAI credentials
-Update the __REPLACE_WITH_YOUR_PROCESSED_LABEL_ID__ with the ID of the label you want to use for the processed emails
-Setup email to send in case of error (fallback)
-Test with a few emails before enabling the trigger
-Remember to update the OpenAI API key and Gmail authentication after importing the workflow.
+- **Start simple:** Begin with three categories; add more only if needed.
+- **Test thoroughly:** Try with a handful of emails before automating everything.
+- **Privacy:** If you want more control over your data, consider using a local LLM instead of OpenAI's API.
 
-Video Tutorial: Watch the Complete Email Automation Setup
-If you prefer learning visually, I've created a comprehensive video tutorial that walks through the entire process of setting up this email automation system:
+---
 
-Email Automation with n8n and LLM Video Tutorial
+### 10. Next Steps
 
-The video demonstrates each step of creating the n8n workflow, configuring the OpenAI integration, setting up Gmail connections, and testing the complete automation. You'll see the exact node configurations, the LLM prompt in action, and how the system categorizes real emails in real-time.
+- Tweak the workflow to fit your habits.
+- Add extra logic for specific senders or email types.
+- Enjoy a more organized inbox with minimal manual effort!
 
-Related Articles
+---
+
+**Questions?**  
+Feel free to open an issue or check out related articles below for more ideas and improvements.
